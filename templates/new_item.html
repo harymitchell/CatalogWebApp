@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class='title'><h1> Add an item </h1></div>
+<form action="{{url_for('newitem', catalog_id=catalog_id, catalog=catalog, catagory_id = catagory_id)}}" method = 'post'>
+<p>What item?</p>
+<input type='text' size='30' name='content'>
+<select name='catagory'>
+  {% for c in catagories %}
+  <option value="{{c.id}}">{{c.description}}</option>
+  {% endfor %}
+</select> 
+<input type='submit' value='Add'> 
+</form>
+</body>
+</html>
+{% endblock %}
