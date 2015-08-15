@@ -207,7 +207,7 @@ def catalog(catalog_id=None,catagory_id=None):
 @app.route('/catalogs/<int:catalog_id>/items/new/catagory/<int:catagory_id>', methods = ['GET', 'POST'])
 def newitem(catalog_id, catagory_id=None):
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
-    if not currentUser:
+    if not currentUser():
         return redirect('/login')
     elif request.method == 'POST':
         catagory_id = request.form['catagory']
@@ -228,7 +228,7 @@ def newitem(catalog_id, catagory_id=None):
 def edititem (catalog_id, item_id):
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     item = session.query (Item).filter_by (id=item_id).one()
-    if not currentUser:
+    if not currentUser():
         return redirect('/login')
     elif item.user != currentUserOrAnonymous():
         flash("This item is not yours to edit!")
@@ -250,7 +250,7 @@ def edititem (catalog_id, item_id):
 def deleteitem (catalog_id, item_id):
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     item = session.query (Item).filter_by (id=item_id).one()
-    if not currentUser:
+    if not currentUser():
         return redirect('/login')
     elif item.user != currentUser():
         flash("This item is not yours to delete!")
@@ -277,15 +277,16 @@ def allCatagories(catalog):
 
 def currentUser():
     ''' Returns the user currently logged in. '''
-    users = session.query(User).filter_by(name=login_session['username'])
-    if users.count() == 1:
-        return users.one()
+    if 'username' in login_session:
+        users = session.query(User).filter_by(name=login_session['username'])
+        if users.count() == 1:
+            return users.one()
 
 def currentUserOrAnonymous():
     ''' Returns the user currently logged in, or if none, the Anonymous user. '''
-    users = session.query(User).filter_by(name=login_session['username'])
-    if users.count() == 1:
-        return users.one()
+    l_user = currentUser()
+    if l_user:
+        return l_user
     else:
         users = session.query(User).filter_by(name='Anonymous').one()
 
