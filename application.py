@@ -207,7 +207,7 @@ def catalog(catalog_id=None,catagory_id=None):
 @app.route('/catalogs/<int:catalog_id>/items/new/catagory/<int:catagory_id>', methods = ['GET', 'POST'])
 def newitem(catalog_id, catagory_id=None):
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
-    if 'username' not in login_session:
+    if not currentUser:
         return redirect('/login')
     elif request.method == 'POST':
         catagory_id = request.form['catagory']
@@ -228,7 +228,7 @@ def newitem(catalog_id, catagory_id=None):
 def edititem (catalog_id, item_id):
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     item = session.query (Item).filter_by (id=item_id).one()
-    if 'username' not in login_session:
+    if not currentUser:
         return redirect('/login')
     elif item.user != currentUserOrAnonymous():
         flash("This item is not yours to edit!")
@@ -250,9 +250,7 @@ def edititem (catalog_id, item_id):
 def deleteitem (catalog_id, item_id):
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     item = session.query (Item).filter_by (id=item_id).one()
-    print "item user name: " + item.user.name
-    print "currentUser user name: " + currentUserOrAnonymous().name
-    if 'username' not in login_session:
+    if not currentUser:
         return redirect('/login')
     elif item.user != currentUser():
         flash("This item is not yours to delete!")
