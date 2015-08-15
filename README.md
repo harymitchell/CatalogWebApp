@@ -1,3 +1,5 @@
+Catalog Web App
+
 * Web App runs on port 5000 by default.
 * Please only attempt to launch app in the Vagrant environment.
 * To launch:
