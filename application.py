@@ -287,11 +287,17 @@ def deleteitem (catalog_id, item_id):
         return render_template('delete_item.html', item_id = item_id, catalog_id = catalog_id, catalog=catalog, currentUser = currentUser())
 
 ### JSON of items
-@app.route('/catalogs/<int:catalog_id>/items/JSON')
-def catalogitems(catalog_id):
-    catalog = session.query(catalog).filter_by(id = catalog_id).one()
-    items = session.query(item).filter_by(catalog_id = catalog_id)
+@app.route('/catalog/<int:catalog_id>/items/JSON')
+def items(catalog_id):
+    catalog = session.query(Catalog).filter_by(id = catalog_id).one()
+    items = session.query(Item).filter_by(catalog_id = catalog_id)
     return jsonify(catalogitems=[i.serialize for i in items])
+
+### JSON of catagories
+@app.route('/catagories/<int:catagory_id>/JSON')
+def users(catagory_id):
+    catagories = session.query(Catagory).filter_by(id = catagory_id)
+    return jsonify(catalog_catagories=[i.serialize for i in catagories])
 
 def allCatagories(catalog):
     '''returns all catagories for catalog'''
