@@ -19,7 +19,12 @@ a {
 .title{
     margin: 50; 
 }
-.nav ul{;
+.nav span{
+    float: right;
+    font-style: italic;
+    color: #666666
+}
+.nav ul{
     float: right;
     }
 .nav li{

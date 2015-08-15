@@ -199,7 +199,7 @@ def catalog(catalog_id=None,catagory_id=None):
         searchCriteria = "Recently added items" 
         items = session.query(Item).filter_by(catalog_id = catalog_id).order_by("id desc").all()[:5]
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
-    result = render_template ('catalog.html', catalog_id = catalog_id, catalog = catalog, items = items, searchCriteria = searchCriteria, catagories = allCatagories(catalog))
+    result = render_template ('catalog.html', catalog_id = catalog_id, catalog = catalog, items = items, searchCriteria = searchCriteria, catagories = allCatagories(catalog), currentUser = currentUser())
     return result
 
 ### New item
@@ -221,7 +221,7 @@ def newitem(catalog_id, catagory_id=None):
         flash("item "+newItem.content+" added successful!")
         return redirect(url_for('catalog', catalog_id=catalog_id, catalog=catalog))
     else:
-        return render_template('new_item.html', catalog_id = catalog_id, catalog=catalog, catagory_id = catagory_id, catagories = allCatagories(catalog))
+        return render_template('new_item.html', catalog_id = catalog_id, catalog=catalog, catagory_id = catagory_id, catagories = allCatagories(catalog), currentUser = currentUser())
     
 ### Edit item
 @app.route('/catalogs/<int:catalog_id>/items/<int:item_id>/edit', methods = ['GET', 'POST'])
@@ -243,7 +243,7 @@ def edititem (catalog_id, item_id):
         flash("item updated!")
         return redirect(url_for('catalog', catalog_id = catalog_id, catalog=catalog))
     else:
-        return render_template('edit_item.html', item_id = item_id, item = session.query(Item).filter_by(id=item_id).one(), catalog_id = catalog_id, catalog=catalog, catagories = allCatagories(catalog))
+        return render_template('edit_item.html', item_id = item_id, item = session.query(Item).filter_by(id=item_id).one(), catalog_id = catalog_id, catalog=catalog, catagories = allCatagories(catalog), currentUser = currentUser())
 
 ### Delete item
 @app.route('/catalogs/<int:catalog_id>/items/<int:item_id>/delete', methods = ['GET', 'POST'])
@@ -262,7 +262,7 @@ def deleteitem (catalog_id, item_id):
         flash("item deleted!")
         return redirect(url_for('catalog', catalog_id = catalog_id, catalog=catalog))
     else:
-        return render_template('delete_item.html', item_id = item_id, catalog_id = catalog_id, catalog=catalog)
+        return render_template('delete_item.html', item_id = item_id, catalog_id = catalog_id, catalog=catalog, currentUser = currentUser())
 
 ### JSON of items
 @app.route('/catalogs/<int:catalog_id>/items/JSON')
