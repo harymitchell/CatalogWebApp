@@ -218,7 +218,7 @@ def newitem(catalog_id, catagory_id=None):
     if not currentUser():
         return redirect('/login')
     elif request.method == 'POST':
-        image_uri = ""
+        catagory_id = request.form['catagory']
         newItem = Item(title = request.form['title'],
                        content = request.form['content'],
                        user_id = currentUserOrAnonymous().id,
