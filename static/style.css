@@ -31,6 +31,12 @@ a {
     display: inline;
     padding: 10
     }
+.nav img{
+    margin-left: 5;
+    float: right;
+    width: 30px; 
+    height: 30px;
+}
 .header {
     text-align:center;
     margin: 50
@@ -112,4 +118,7 @@ a {
     }
 form{
     margin: 50
+}
+form input {
+    display: block;
 }

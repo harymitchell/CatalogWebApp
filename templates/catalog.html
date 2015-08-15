@@ -3,6 +3,10 @@
 <div class='itemPane'>
     <aside class='sideBar'>
         <ul>
+            <li> 
+                <a href={{url_for('catalog', catalog_id=catalog_id)}}>
+                    Latest additions
+                </a>
             {% for c in catagories %}
             <li> 
                 <a href={{url_for('catalog', catalog_id=catalog_id, catagory_id=c.id)}}>
@@ -14,7 +18,9 @@
     </aside>
     <div class='itemsGrid'>
         <div class='newitem'>
-            <span><a href={{url_for('newitem', catalog_id=catalog_id,catalog=catalog)}}>New item</a></span>
+            <span>
+                <a href={{url_for('newitem', catalog_id=catalog_id, catalog=catalog, catagory_id=None if not catagory_id else catagory_id)}}>New item</a>
+            </span>
         </div>
         <div class='searchCriteria'>
             <h5>{{searchCriteria}}</h5>
@@ -22,11 +28,12 @@
         {% for i in items %}
         <div class='item' id={{'evenRow' if items.index(i)%2 == 0 else 'oddRow'}}>
             <div class='contentAndName'>
-                <span class='content'><p>{{i.content}} ({{i.catagory.description if i.catagory else "none"}})</p></span>
+                <span class='content'><p>{{i.title}} ({{i.catagory.description if i.catagory else "none"}})</p></span>
                 <br>
                 <span class='name'><p>added by {{i.user.name}}</p></span>
             </div>
             <div class = 'editDeletePane'>
+                <a href={{url_for('view_item', catalog_id=catalog_id,catalog=catalog,item_id=i.id)}}>View</a>
                 <a href={{url_for('edititem', catalog_id=catalog_id,catalog=catalog,item_id=i.id)}}>Edit</a>
                 <a href={{url_for('deleteitem', catalog_id=catalog_id,catalog=catalog,item_id=i.id)}}>Delete</a>
             </div>

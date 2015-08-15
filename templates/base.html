@@ -13,8 +13,9 @@
         <ul>
             <li> <a href='/login'>Login</a>   </li>
             <li> <a href="/gdisconnect">Log off</a> </li>
-        </ul>
+        </ul>  
         {%if currentUser%}
+        <img src={{currentUser.image_uri}}>
         <span>Logged in as {{currentUser.name}}</span>
         {%else%}
         <span>Please login</span>

@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-<div class='title'><h1> Edit item </h1></div>
+<div class='title'><h1> {{item.title}} </h1></div>
 <form action="{{url_for('edititem', item_id=item_id, catalog_id=catalog_id, catalog=catalog)}}" method = 'post'>
 <input type='text' size='30' name='content' value='{{item.content}}'> 
-<select name='catagory'>
+<select name='catagory' value='{{item.catagory.description}}'>
   {% for c in catagories %}
-  <option value="{{c.id}}">{{c.description}}</option>
+  <option 
+  {% if item.catagory == c %}
+  selected="selected"
+  {% endif %}
+  value="{{c.id}}">{{c.description}}</option>
   {% endfor %}
 </select> 
 <input type='submit' value='update'>

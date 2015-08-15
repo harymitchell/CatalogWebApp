@@ -16,6 +16,7 @@ class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key = True)
     name = Column(String(80), nullable = False)
+    image_uri = Column(String(240), nullable = True)
 
 
 class Catagory(Base):
@@ -27,6 +28,7 @@ class Catagory(Base):
 class Item(Base):
     __tablename__ = 'item'
     id = Column(Integer, primary_key = True)
+    title = Column(String(240), nullable = False)
     content = Column(String(240), nullable = False)
     user_id = Column(Integer, ForeignKey(User.id), nullable = False)
     user = relationship(User)
@@ -34,6 +36,7 @@ class Item(Base):
     catalog = relationship(Catalog)
     catagory_id = Column(Integer, ForeignKey(Catagory.id), nullable = True)
     catagory = relationship(Catagory)
+    image_uri = Column(String(240), nullable = True)
 
     @property
     def serialize(self):

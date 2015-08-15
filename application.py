@@ -107,9 +107,10 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    print login_session['picture']
     if not currentUser():
         header = "Welcome, "
-        newUser = User(name = login_session['username'])
+        newUser = User(name = login_session['username'], image_uri = login_session['picture'])
         session.add(newUser)
         session.commit()
     else:
@@ -181,7 +182,8 @@ def catalog(catalog_id=None,catagory_id=None):
         catagoryC = Catagory (description="electronics")
         new_catalog = Catalog (name = "catalogosphere")
         new_user = User(name = "Anonymous")
-        new_item = Item (content = "Shirt",
+        new_item = Item (title = "Shirt",
+                         content = "its awesome, its made out of synthetics.",
                          user = new_user,
                          catalog = new_catalog,
                          catagory= catagoryA)
@@ -199,29 +201,41 @@ def catalog(catalog_id=None,catagory_id=None):
         searchCriteria = "Recently added items" 
         items = session.query(Item).filter_by(catalog_id = catalog_id).order_by("id desc").all()[:5]
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
-    result = render_template ('catalog.html', catalog_id = catalog_id, catalog = catalog, items = items, searchCriteria = searchCriteria, catagories = allCatagories(catalog), currentUser = currentUser())
-    return result
+    return render_template ('catalog.html', catalog_id = catalog_id, catalog = catalog, catagory_id = catagory_id, items = items, searchCriteria = searchCriteria, catagories = allCatagories(catalog), currentUser = currentUser())
+
 
 ### New item
 @app.route('/catalogs/<int:catalog_id>/items/new', methods = ['GET', 'POST'])
 @app.route('/catalogs/<int:catalog_id>/items/new/catagory/<int:catagory_id>', methods = ['GET', 'POST'])
 def newitem(catalog_id, catagory_id=None):
+    '''
+        Returns template for adding new item on GET.
+        On POST, will add the new item.
+        If not logged in, will prompt for log in.
+    '''
+    print catagory_id
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     if not currentUser():
         return redirect('/login')
     elif request.method == 'POST':
-        catagory_id = request.form['catagory']
-        print "catagory", catagory_id
-        newItem = Item(content = request.form['content'],
+        image_uri = ""
+        newItem = Item(title = request.form['title'],
+                       content = request.form['content'],
                        user_id = currentUserOrAnonymous().id,
                        catalog_id = catalog_id,
                        catagory_id = catagory_id)
         session.add(newItem)
         session.commit()
-        flash("item "+newItem.content+" added successful!")
-        return redirect(url_for('catalog', catalog_id=catalog_id, catalog=catalog))
+        flash("item "+newItem.title+" added successful!")
+        return redirect(url_for('catalog', catalog_id=catalog_id, catalog=catalog, catagory_id=catagory_id))
     else:
-        return render_template('new_item.html', catalog_id = catalog_id, catalog=catalog, catagory_id = catagory_id, catagories = allCatagories(catalog), currentUser = currentUser())
+        catagories = session.query(Catagory).filter_by(id=catagory_id)
+        if catagories.count() == 1:
+            print "found catagory"
+            catagory_description = catagories.one().description
+            return render_template('new_item.html', catagory_description = catagory_description, catalog_id = catalog_id, catalog=catalog, catagory_id = catagory_id, catagories = allCatagories(catalog), currentUser = currentUser())
+        else:
+            return render_template('new_item.html', catalog_id = catalog_id, catalog=catalog, catagory_id = catagory_id, catagories = allCatagories(catalog), currentUser = currentUser())
     
 ### Edit item
 @app.route('/catalogs/<int:catalog_id>/items/<int:item_id>/edit', methods = ['GET', 'POST'])
@@ -244,6 +258,14 @@ def edititem (catalog_id, item_id):
         return redirect(url_for('catalog', catalog_id = catalog_id, catalog=catalog))
     else:
         return render_template('edit_item.html', item_id = item_id, item = session.query(Item).filter_by(id=item_id).one(), catalog_id = catalog_id, catalog=catalog, catagories = allCatagories(catalog), currentUser = currentUser())
+    
+### View item
+@app.route('/catalogs/<int:catalog_id>/items/<int:item_id>', methods = ['GET'])
+def view_item (catalog_id, item_id):
+    catalog = session.query(Catalog).filter_by(id = catalog_id).one()
+    item = session.query (Item).filter_by (id=item_id).one()
+    return render_template('view_item.html', item_id = item_id, item = session.query(Item).filter_by(id=item_id).one(), catalog_id = catalog_id, catalog=catalog, catagories = allCatagories(catalog), currentUser = currentUser())
+
 
 ### Delete item
 @app.route('/catalogs/<int:catalog_id>/items/<int:item_id>/delete', methods = ['GET', 'POST'])

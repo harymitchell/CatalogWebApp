@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+	<div class='title'><h3> {{item.title}}</h3>
+		<p> {{item.content}} </p>
+		<!-- <img src={{item.image_uri}}> -->
+			<div class = 'editDeletePane'>
+			    <a href={{url_for('edititem', catalog_id=catalog_id,catalog=catalog,item_id=item.id)}}>Edit</a>
+			    <a href={{url_for('deleteitem', catalog_id=catalog_id,catalog=catalog,item_id=item.id)}}>Delete</a>
+			</div>
+	</div>
+</body>
+</html>
+{% endblock %}
