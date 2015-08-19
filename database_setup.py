@@ -1,3 +1,7 @@
+''' 
+    database_setup.py contains all database and model setup for the Catalog web app.
+'''
+
 import sys
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -7,12 +11,14 @@ Base = declarative_base()
 
     
 class Catalog(Base):
+    ''' Catalog is a singlt catalog item, which can have items. '''
     __tablename__ = 'catalog'
     id = Column(Integer, primary_key = True)
     name = Column(String(80), nullable = False)
 
     @property
     def serialize(self):
+        ''' Retuns JSON for Current '''
         return {
             'id'     :  self.id,
             'name'   :  self.name
@@ -20,6 +26,7 @@ class Catalog(Base):
 
 
 class User(Base):
+    ''' User represents the registered users of the WebApp.'''
     __tablename__ = 'user'
     id = Column(Integer, primary_key = True)
     name = Column(String(80), nullable = False)
@@ -27,6 +34,7 @@ class User(Base):
 
     @property
     def serialize(self):
+        ''' Retuns JSON for Current '''
         return {
             'id'     :  self.id,
             'name'     :  self.name,
@@ -35,12 +43,14 @@ class User(Base):
 
 
 class Catagory(Base):
+    ''' Catagory is the type of item added to Catalog. '''
     __tablename__ = 'catagory'
     id = Column(Integer, primary_key=True)
     description = Column(String(240), nullable=False)
 
     @property
     def serialize(self):
+        ''' Retuns JSON for Current '''
         return {
             'id'     :  self.id,
             'description': self.description
@@ -48,6 +58,7 @@ class Catagory(Base):
     
 
 class Item(Base):
+    ''' Item is an actual item added to the Catagory. '''
     __tablename__ = 'item'
     id = Column(Integer, primary_key = True)
     title = Column(String(240), nullable = False)
@@ -62,6 +73,7 @@ class Item(Base):
 
     @property
     def serialize(self):
+        ''' Retuns JSON for Current '''
         return {
             'id'     :  self.id,
             'title'  :  self.title,

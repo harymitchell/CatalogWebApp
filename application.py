@@ -1,3 +1,11 @@
+''' application.py is the main application for the Catalog app.
+    and can be launched with 
+
+    $ python application.py   
+
+    This file contain the routes and functions to support the web app. 
+'''
+
 from flask import Flask, render_template, url_for, request, redirect,flash,jsonify, make_response
 app = Flask(__name__)
 from sqlalchemy import create_engine
@@ -21,7 +29,9 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_i
 # Login
 @app.route('/login')
 def showLogin():
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+    ''' This route shows the login page. '''
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) 
+            for x in xrange(32))
     login_session['state'] = state
     print CLIENT_ID
     return render_template('login.html', client_id = CLIENT_ID, STATE = state)
@@ -29,6 +39,7 @@ def showLogin():
 # Gconnect
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    ''' This route validates based on Google + account. '''
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -110,7 +121,8 @@ def gconnect():
     print login_session['picture']
     if not currentUser():
         header = "Welcome, "
-        newUser = User(name = login_session['username'], image_uri = login_session['picture'])
+        newUser = User(name = login_session['username'], 
+                    image_uri = login_session['picture'])
         session.add(newUser)
         session.commit()
     else:
@@ -122,13 +134,15 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ''' " style = "width: 300px; height: 300px;border-radius: 
+                150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;">'''
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    ''' This route discounnects user from app '''
         # Only disconnect a connected user.
     credentials = login_session.get('credentials')
     if credentials is None:
@@ -169,12 +183,15 @@ def gdisconnect():
 @app.route('/catalogs/<int:catalog_id>/')
 @app.route('/catalogs/<int:catalog_id>/<int:catagory_id>')
 def catalog(catalog_id=None,catagory_id=None):
+    ''' This route shows the main app page. '''
     if not catalog_id:
         ## Default to catalog 1, since interface does not yet support switching.
         catalog_id = 1
     if session.query(Catalog).count() == 0:
-        ## Create the default catalog, since interface does not yet support Catalog creation.
-        ## Also, create a few default catagories, since interface does not support creating these.
+        ## Create the default catalog, since interface does not yet support 
+        ##   Catalog creation.
+        ## Also, create a few default catagories, since interface does not support 
+        ##  creating these.
         ## Create a test item to drive the demo
         ## Create Anonymous user
         catagoryA = Catagory (description="clothes")
@@ -196,17 +213,25 @@ def catalog(catalog_id=None,catagory_id=None):
     catagory = None if catagoriesForId.count() < 1 else catagoriesForId.one()
     if catagory:
         searchCriteria = catagory.description
-        items = session.query(Item).filter_by(catalog_id = catalog_id, catagory_id = catagory_id).all()
+        items = session.query(Item).filter_by(catalog_id = catalog_id, 
+                                                catagory_id = catagory_id).all()
     else:
         searchCriteria = "Recently added items" 
         items = session.query(Item).filter_by(catalog_id = catalog_id).order_by("id desc").all()[:5]
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
-    return render_template ('catalog.html', catalog_id = catalog_id, catalog = catalog, catagory_id = catagory_id, items = items, searchCriteria = searchCriteria, catagories = allCatagories(catalog), currentUser = currentUser())
+    return render_template ('catalog.html', catalog_id = catalog_id, 
+                            catalog = catalog, 
+                            catagory_id = catagory_id, 
+                            items = items, 
+                            searchCriteria = searchCriteria, 
+                            catagories = allCatagories(catalog), 
+                            currentUser = currentUser())
 
 
 ### New item
 @app.route('/catalogs/<int:catalog_id>/items/new', methods = ['GET', 'POST'])
-@app.route('/catalogs/<int:catalog_id>/items/new/catagory/<int:catagory_id>', methods = ['GET', 'POST'])
+@app.route('/catalogs/<int:catalog_id>/items/new/catagory/<int:catagory_id>', 
+            methods = ['GET', 'POST'])
 def newitem(catalog_id, catagory_id=None):
     '''
         Returns template for adding new item on GET.
@@ -227,19 +252,27 @@ def newitem(catalog_id, catagory_id=None):
         session.add(newItem)
         session.commit()
         flash("item "+newItem.title+" added successful!")
-        return redirect(url_for('catalog', catalog_id=catalog_id, catalog=catalog, catagory_id=catagory_id))
+        return redirect(url_for('catalog', catalog_id=catalog_id, 
+                                            catalog=catalog, 
+                                            catagory_id=catagory_id))
     else:
         catagories = session.query(Catagory).filter_by(id=catagory_id)
         if catagories.count() == 1:
             print "found catagory"
             catagory_description = catagories.one().description
-            return render_template('new_item.html', catagory_description = catagory_description, catalog_id = catalog_id, catalog=catalog, catagory_id = catagory_id, catagories = allCatagories(catalog), currentUser = currentUser())
+            return render_template('new_item.html', catagory_description = catagory_description, 
+                                                    catalog_id = catalog_id, 
+                                                    catalog=catalog, 
+                                                    catagory_id = catagory_id, 
+                                                    catagories = allCatagories(catalog), 
+                                                    currentUser = currentUser())
         else:
             return render_template('new_item.html', catalog_id = catalog_id, catalog=catalog, catagory_id = catagory_id, catagories = allCatagories(catalog), currentUser = currentUser())
     
 ### Edit item
 @app.route('/catalogs/<int:catalog_id>/items/<int:item_id>/edit', methods = ['GET', 'POST'])
 def edititem (catalog_id, item_id):
+    ''' This route shows edit page on GET, and updates item on POST '''
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     item = session.query (Item).filter_by (id=item_id).one()
     if not currentUser():
@@ -257,45 +290,69 @@ def edititem (catalog_id, item_id):
         flash("item updated!")
         return redirect(url_for('catalog', catalog_id = catalog_id, catalog=catalog))
     else:
-        return render_template('edit_item.html', item_id = item_id, item = session.query(Item).filter_by(id=item_id).one(), catalog_id = catalog_id, catalog=catalog, catagories = allCatagories(catalog), currentUser = currentUser())
+        return render_template('edit_item.html', 
+                                item_id = item_id, 
+                                item = session.query(Item).filter_by(id=item_id).one(), 
+                                catalog_id = catalog_id, 
+                                catalog=catalog, 
+                                catagories = allCatagories(catalog), 
+                                currentUser = currentUser())
     
 ### View item
 @app.route('/catalogs/<int:catalog_id>/items/<int:item_id>', methods = ['GET'])
 def view_item (catalog_id, item_id):
+    ''' This route shows the item view page. '''
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     item = session.query (Item).filter_by (id=item_id).one()
-    return render_template('view_item.html', item_id = item_id, item = session.query(Item).filter_by(id=item_id).one(), catalog_id = catalog_id, catalog=catalog, catagories = allCatagories(catalog), currentUser = currentUser())
-
+    return render_template('view_item.html', 
+                            item_id = item_id, 
+                            item = session.query(Item).filter_by(id=item_id).one(), 
+                            catalog_id = catalog_id, 
+                            catalog=catalog, 
+                            catagories = allCatagories(catalog), 
+                            currentUser = currentUser())
 
 ### Delete item
-@app.route('/catalogs/<int:catalog_id>/items/<int:item_id>/delete', methods = ['GET', 'POST'])
+@app.route('/catalogs/<int:catalog_id>/items/<int:item_id>/delete', 
+            methods = ['GET', 'POST'])
 def deleteitem (catalog_id, item_id):
+    ''' This route shows the delete page on GET and deletes the item of POST. '''
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     item = session.query (Item).filter_by (id=item_id).one()
     if not currentUser():
         return redirect('/login')
     elif item.user != currentUser():
         flash("This item is not yours to delete!")
-        return redirect(url_for('catalog', catalog_id = catalog_id, catalog=catalog))        
+        return redirect(url_for('catalog', 
+                                catalog_id = catalog_id, 
+                                catalog=catalog))        
     elif request.method == 'POST':
         editItem = session.query(Item).filter_by(id = item_id).one()
         session.delete(editItem)
         session.commit()
         flash("item deleted!")
-        return redirect(url_for('catalog', catalog_id = catalog_id, catalog=catalog))
+        return redirect(url_for('catalog', 
+                                catalog_id = catalog_id, 
+                                catalog=catalog))
     else:
-        return render_template('delete_item.html', item_id = item_id, catalog_id = catalog_id, catalog=catalog, currentUser = currentUser())
+        return render_template('delete_item.html', 
+                                item_id = item_id, 
+                                catalog_id = catalog_id, 
+                                catalog=catalog, 
+                                currentUser = currentUser())
 
 ### JSON of items
 @app.route('/catalog/<int:catalog_id>/items/JSON')
 def items(catalog_id):
+    ''' This route returns JSON representation of all items for given catalog. '''
     catalog = session.query(Catalog).filter_by(id = catalog_id).one()
     items = session.query(Item).filter_by(catalog_id = catalog_id)
     return jsonify(catalogitems=[i.serialize for i in items])
 
 ### JSON of catagories
 @app.route('/catagories/<int:catagory_id>/JSON')
-def users(catagory_id):
+def catagories(catagory_id):
+    ''' This route returns JSON representation of all catagories for given catagory. '''
     catagories = session.query(Catagory).filter_by(id = catagory_id)
     return jsonify(catalog_catagories=[i.serialize for i in catagories])
 
