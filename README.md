@@ -21,3 +21,4 @@ Test application is populated with initial test catalog
 In order to alter the data, you must log in with Google Plus
 To add items, click "New Item" button.
 Each item has an "Add" and "Remove" button that will facilitate updates
+
